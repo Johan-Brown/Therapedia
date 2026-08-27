@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Therapedia — Mental wellness manuals, psychosocial dictionaries, and therapeutic guidance.">
-  <meta name="theme-color" content="#0b4f43">
+  <meta name="theme-color" content="#042f2e">
   <title>Therapedia — Mental Wellness & Therapy Library</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -13,7 +13,7 @@
     <nav class="nav container" aria-label="Main navigation">
       <a class="brand" href="./" aria-label="Therapedia home">
         <span class="brand-mark">🩺</span>
-        <span>Therapedia</span>
+        <span>Therapedia Series</span>
       </a>
       <a class="hub-link" href="../johanbrown-books-hub/">JohanBrown Books</a>
     </nav>
@@ -23,11 +23,11 @@
         <span class="eyebrow" id="categoryBadge">WELLNESS & THERAPY</span>
         <h1 id="categoryTitle">Therapedia</h1>
         <p id="categoryDescription">Mental wellness manuals, psychosocial dictionaries, and therapeutic guidance.</p>
-        <p class="hero-note">Empowering psychological wellbeing, exam stress management, and counsellor conversations through structured resources.</p>
+        <p class="hero-note">Comprehensive therapeutic reference books and emotional wellness guides.</p>
       </div>
       <div class="hero-art" aria-hidden="true">
         <div class="heart heart-one">✨</div>
-        <div class="heart heart-two">💚</div>
+        <div class="heart heart-two">🩺</div>
         <div class="hero-circle">🩺</div>
       </div>
     </div>
@@ -41,11 +41,23 @@
           <h2 id="libraryHeading">Explore the Books</h2>
           <p id="bookCount" class="book-count">Loading books…</p>
         </div>
-        <label class="search-box">
-          <span class="sr-only">Search books</span>
-          <span aria-hidden="true">⌕</span>
-          <input id="searchInput" type="search" placeholder="Search books…" autocomplete="off">
-        </label>
+        <div class="controls-bar">
+          <label class="sort-box">
+            <span class="sort-label">Sort:</span>
+            <select id="sortSelect">
+              <option value="featured">Featured Order</option>
+              <option value="az">Alphabetical (A - Z)</option>
+              <option value="za">Alphabetical (Z - A)</option>
+              <option value="recent">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </label>
+          <label class="search-box">
+            <span class="sr-only">Search books</span>
+            <span aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="Search books…" autocomplete="off">
+          </label>
+        </div>
       </div>
 
       <div id="status" class="status" role="status" aria-live="polite">Loading the library…</div>
@@ -55,8 +67,8 @@
 
   <footer class="footer">
     <div class="container footer-inner">
-      <span>© <span id="year"></span> Therapedia</span>
-      <span>JohanBrown Mental Wellness Series</span>
+      <span>© <span id="year"></span> Therapedia Series</span>
+      <span>JohanBrown Interactive Educational Series</span>
     </div>
   </footer>
 
