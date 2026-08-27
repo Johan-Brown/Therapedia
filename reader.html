@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b4f43">
+  <title>Reader — Therapedia</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { min-height: 100vh; background:#eef5f2; }
+    .reader-header { position:sticky; top:0; z-index:20; background:#0b4f43; color:#fff; box-shadow:0 8px 25px rgba(0,0,0,.12); }
+    .reader-nav { min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .back-link { color:#fff; text-decoration:none; font-weight:800; }
+    .reader-title { margin:0; font-size:18px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .reader-shell { width:min(1100px, calc(100% - 24px)); margin:18px auto 24px; }
+    #viewer { min-height:calc(100vh - 175px); background:#fff; border-radius:18px; box-shadow:0 15px 45px rgba(16,65,53,.12); overflow:hidden; position:relative; }
+    #epubViewport { width:100%; height:calc(100vh - 175px); min-height:560px; }
+    .pdf-frame { width:100%; height:calc(100vh - 175px); min-height:560px; border:0; display:block; }
+    .reader-message { display:grid; place-items:center; min-height:50vh; padding:30px; color:#65736f; text-align:center; }
+    .cover-screen { min-height:calc(100vh - 175px); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px; background:#fff; text-align:center; }
+    .cover-screen img { max-width:min(78vw, 620px); max-height:calc(100vh - 300px); object-fit:contain; border-radius:10px; box-shadow:0 18px 45px rgba(0,0,0,.18); }
+    .cover-screen .cover-fallback { width:min(78vw,420px); aspect-ratio:3/4; display:grid; place-items:center; border-radius:18px; background:linear-gradient(145deg,#dcf5ea,#b2e6d4); font-size:80px; box-shadow:0 18px 45px rgba(0,0,0,.14); }
+    .cover-actions { display:flex; gap:12px; margin-top:22px; }
+    .reader-btn { border:0; border-radius:12px; padding:12px 20px; background:#0b4f43; color:#fff; font:inherit; font-weight:800; cursor:pointer; }
+    .reader-btn.secondary { background:#e8f6ef; color:#0b4f43; }
+    .reader-controls { display:flex; justify-content:center; gap:10px; padding:12px; background:#fff; border-top:1px solid #dce9e4; position:sticky; bottom:0; z-index:10; }
+    .reader-controls button { min-width:110px; }
+    .reader-progress { text-align:center; color:#65736f; font-size:13px; padding:5px 10px 0; background:#fff; }
+    @media(max-width:600px) {
+      .reader-title { max-width:55%; font-size:15px; }
+      #epubViewport, .pdf-frame { min-height:500px; height:calc(100vh - 175px); }
+      .cover-screen img { max-height:calc(100vh - 300px); }
+    }
+  </style>
+</head>
+<body>
+<header class="reader-header">
+  <div class="container reader-nav">
+    <a class="back-link" href="./">← Back to Collection</a>
+    <h1 id="readerTitle" class="reader-title">Loading book…</h1>
+  </div>
+</header>
+
+<main class="reader-shell">
+  <div id="viewer">
+    <div class="reader-message">Preparing the reader…</div>
+  </div>
+  <div id="progress" class="reader-progress" hidden></div>
+  <div id="controls" class="reader-controls" hidden>
+    <button id="prevBtn" class="reader-btn secondary" type="button">← Previous</button>
+    <button id="nextBtn" class="reader-btn" type="button">Next →</button>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const requestedBook = params.get('book');
+const viewer = document.getElementById('viewer');
+const readerTitle = document.getElementById('readerTitle');
+const controls = document.getElementById('controls');
+const progress = document.getElementById('progress');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+let bookInstance = null;
+let rendition = null;
+let atCover = true;
+
+function message(text) {
+  viewer.innerHTML = '<div class="reader-message">' + text + '</div>';
+  controls.hidden = true;
+  progress.hidden = true;
+}
+
+function safeText(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[c]));
+}
+
+async function loadBooks() {
+  const response = await fetch('./books.json', {cache:'no-cache'});
+  if (!response.ok) throw new Error('books.json could not be loaded (' + response.status + ')');
+  const data = await response.json();
+  return Array.isArray(data) ? data : (data.books || []);
+}
+
+function absoluteBookUrl(file) {
+  return new URL(file, window.location.href).href;
+}
+
+async function initReader() {
+  if (!requestedBook) {
+    message('No book was selected.');
+    return;
+  }
+
+  try {
+    const books = await loadBooks();
+    const book = books.find(item => item.file === requestedBook);
+    if (!book) throw new Error('Book not found in books.json: ' + requestedBook);
+
+    readerTitle.textContent = book.title || 'Book Reader';
+
+    const bookUrl = absoluteBookUrl(book.file);
+    const isPdf = requestedBook.toLowerCase().endsWith('.pdf') || (book.format && book.format.toUpperCase() === 'PDF');
+
+    if (isPdf) {
+      viewer.innerHTML = `<iframe class="pdf-frame" src="${bookUrl}" title="${safeText(book.title)}"></iframe>`;
+      controls.hidden = true;
+      progress.hidden = true;
+      return;
+    }
+
+    // EPUB Reader
+    const response = await fetch(bookUrl);
+    if (!response.ok) throw new Error('EPUB could not be downloaded (' + response.status + ')');
+
+    const epubData = await response.arrayBuffer();
+    if (!epubData.byteLength) throw new Error('The EPUB file is empty.');
+
+    bookInstance = ePub(epubData);
+
+    rendition = bookInstance.renderTo('viewer', {
+      width:'100%',
+      height:'calc(100vh - 175px)',
+      spread:'auto',
+      flow:'paginated',
+      allowScriptedContent:true
+    });
+
+    rendition.on('relocated', updateControls);
+    await bookInstance.ready;
+
+    const coverUrl = await getCoverData(bookInstance);
+    showCover(coverUrl);
+  } catch (error) {
+    console.error('READER ERROR:', error);
+    message(`
+      <div>
+        <strong>Unable to open this book.</strong><br><br>
+        ${safeText(error.message)}
+        <br><br>
+        <small>Check the browser console for more details.</small>
+      </div>`);
+  }
+}
+
+async function getCoverData(epub) {
+  try {
+    const url = await epub.coverUrl();
+    if (url) return url;
+  } catch (_) {}
+  return null;
+}
+
+function showCover(coverUrl) {
+  atCover = true;
+  controls.hidden = false;
+  prevBtn.disabled = true;
+  nextBtn.disabled = false;
+  progress.hidden = true;
+
+  const title = safeText(readerTitle.textContent || 'Book');
+  viewer.innerHTML = `
+    <section class="cover-screen" aria-label="Book cover">
+      ${coverUrl
+        ? `<img src="${coverUrl}" alt="${title} cover">`
+        : `<div class="cover-fallback" aria-hidden="true">📖</div>`}
+      <div class="cover-actions">
+        <button id="startBtn" class="reader-btn" type="button">Start Reading →</button>
+      </div>
+    </section>`;
+  document.getElementById('startBtn').addEventListener('click', startStory);
+}
+
+async function findStorySection(epub) {
+  const candidates = [];
+  const spine = epub.spine && epub.spine.items ? epub.spine.items : [];
+  for (const item of spine) {
+    const href = String(item.href || '').toLowerCase();
+    if (/cover|titlepage|title-page|toc|nav/.test(href)) continue;
+    candidates.push(item);
+  }
+  return candidates[0] || spine[0] || null;
+}
+
+async function startStory() {
+  if (!rendition || !bookInstance) return;
+  atCover = false;
+  viewer.innerHTML = '<div id="epubViewport"></div>';
+  controls.hidden = false;
+  progress.hidden = false;
+  rendition.attachTo('epubViewport');
+
+  const firstStory = await findStorySection(bookInstance);
+  if (firstStory) {
+    await rendition.display(firstStory.href);
+  } else {
+    await rendition.display();
+  }
+  updateControls();
+}
+
+async function nextPage() {
+  if (atCover) {
+    await startStory();
+    return;
+  }
+  if (rendition) await rendition.next();
+  updateControls();
+}
+
+async function previousPage() {
+  if (atCover) return;
+  if (rendition) await rendition.prev();
+  updateControls();
+}
+
+function updateControls() {
+  if (atCover) {
+    prevBtn.disabled = true;
+    nextBtn.disabled = false;
+    progress.textContent = '';
+    return;
+  }
+  prevBtn.disabled = false;
+  nextBtn.disabled = false;
+  try {
+    const loc = rendition.currentLocation();
+    const displayed = loc && loc.start && loc.start.displayed;
+    if (displayed && displayed.page && displayed.total) {
+      progress.textContent = 'Page ' + displayed.page + ' of ' + displayed.total;
+    }
+  } catch (_) {}
+}
+
+prevBtn.addEventListener('click', previousPage);
+nextBtn.addEventListener('click', nextPage);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') nextPage();
+  if (e.key === 'ArrowLeft') previousPage();
+});
+
+initReader();
+</script>
+</body>
+</html>

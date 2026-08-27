@@ -1,0 +1,104 @@
+const state = {
+  category: null,
+  books: [],
+  query: ''
+};
+
+const $ = (selector) => document.querySelector(selector);
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function titleInitials(title) {
+  const words = String(title).trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return '🩺';
+  if (words.length === 1) return words[0].slice(0, 1).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+async function loadJson(file) {
+  const response = await fetch(`${file}?t=${Date.now()}`, { cache: 'no-cache' });
+  if (!response.ok) throw new Error(`Could not load ${file} (${response.status})`);
+  return response.json();
+}
+
+function renderCategory() {
+  const category = state.category || {};
+  const title = category.title || 'Therapedia';
+  document.title = `${title} — Digital Library`;
+  $('#categoryTitle').textContent = title;
+  $('#categoryDescription').textContent = category.description || 'Mental wellness manuals, psychosocial dictionaries, and therapeutic guidance.';
+  $('#categoryBadge').textContent = category.badge || 'WELLNESS & THERAPY';
+}
+
+function renderBooks() {
+  const grid = $('#booksGrid');
+  const query = state.query.trim().toLowerCase();
+  const books = state.books
+    .filter(book => book.status !== 'draft' && book.status !== 'hidden')
+    .filter(book => !query || String(book.title).toLowerCase().includes(query))
+    .sort((a, b) => (Number(a.order) || 999999) - (Number(b.order) || 999999));
+
+  $('#bookCount').textContent = query
+    ? `${books.length} matching book${books.length === 1 ? '' : 's'}`
+    : `${books.length} book${books.length === 1 ? '' : 's'} in this collection`;
+
+  if (!books.length) {
+    grid.innerHTML = `<div class="empty">No books found${query ? ` for “${escapeHtml(state.query)}”` : ''}.</div>`;
+    return;
+  }
+
+  grid.innerHTML = books.map((book, index) => {
+    const title = escapeHtml(book.title || 'Untitled Book');
+    const file = book.file || '';
+    const format = escapeHtml((book.format || 'PDF').toUpperCase());
+    const href = `reader.html?book=${encodeURIComponent(file)}`;
+    return `
+      <article class="book-card">
+        <div class="book-cover">
+          <span class="cover-order">BOOK ${index + 1}</span>
+          <div class="cover-symbol" aria-hidden="true">${escapeHtml(titleInitials(book.title))}</div>
+        </div>
+        <div class="book-body">
+          <h3 class="book-title">${title}</h3>
+          <p class="book-format">${format}</p>
+          <a class="read-btn" href="${href}">Read Book <span aria-hidden="true">→</span></a>
+        </div>
+      </article>`;
+  }).join('');
+}
+
+function showError(error) {
+  console.error(error);
+  $('#status').textContent = 'The library could not be loaded. Please check that category.json and books.json exist.';
+}
+
+async function init() {
+  $('#year').textContent = new Date().getFullYear();
+  $('#searchInput').addEventListener('input', (event) => {
+    state.query = event.target.value;
+    renderBooks();
+  });
+
+  try {
+    const [category, booksData] = await Promise.all([
+      loadJson('./category.json'),
+      loadJson('./books.json')
+    ]);
+    state.category = category;
+    state.books = Array.isArray(booksData) ? booksData : (booksData.books || []);
+    renderCategory();
+    renderBooks();
+    $('#status').classList.add('hidden');
+  } catch (error) {
+    showError(error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);

@@ -1,0 +1,11 @@
+{
+  "type": "ebook-category",
+  "title": "Therapedia",
+  "slug": "therapedia",
+  "badge": "WELLNESS & THERAPY",
+  "icon": "🩺",
+  "logo": "",
+  "description": "Mental wellness manuals, psychosocial dictionaries, and therapeutic guidance.",
+  "status": "published",
+  "order": 6
+}

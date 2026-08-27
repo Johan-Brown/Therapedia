@@ -1,0 +1,10 @@
+{
+  "name": "therapedia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Therapedia eBook category repository",
+  "scripts": {
+    "sync": "node scripts/sync-books.js",
+    "watch": "node scripts/watch-books.js"
+  }
+}
