@@ -62,22 +62,48 @@ function findCoverInOPF(zip) {
     const opfXml = opfEntry.getData().toString('utf8');
     const opfDir = path.dirname(opfPath);
     let imgPath = null;
-    const ep3match = opfXml.match(/<item[^>]+properties="cover-image"[^>]+href="([^"]+)"/i)
-      || opfXml.match(/<item[^>]+href="([^"]+)"[^>]+properties="cover-image"/i);
-    if (ep3match) imgPath = ep3match[1];
+
+    // 1. Explicit id="cover" or id="cover-image" (Prioritized)
+    const explicitMatch = opfXml.match(/<item[^>]+id=["'](?:cover|cover-image)["'][^>]+href=["']([^"']+)["']/i)
+                       || opfXml.match(/<item[^>]+href=["']([^"']+)["'][^>]+id=["'](?:cover|cover-image)["']/i);
+    if (explicitMatch) {
+      imgPath = explicitMatch[1];
+    }
+
+    // 2. EPUB3 properties="cover-image"
     if (!imgPath) {
-      const metaMatch = opfXml.match(/<meta\s+name="cover"\s+content="([^"]+)"/i);
+      const ep3match = opfXml.match(/<item[^>]+properties=["']cover-image["'][^>]+href=["']([^"']+)["']/i)
+                    || opfXml.match(/<item[^>]+href=["']([^"']+)["'][^>]+properties=["']cover-image["']/i);
+      if (ep3match) imgPath = ep3match[1];
+    }
+
+    // 3. EPUB2 <meta name="cover" content="COVER_ID"/>
+    if (!imgPath) {
+      const metaMatch = opfXml.match(/<meta\s+name=["']cover["']\s+content=["']([^"']+)["']/i);
       if (metaMatch) {
         const coverId = metaMatch[1];
-        const itemMatch = opfXml.match(new RegExp(`<item[^>]+id="${coverId}"[^>]+href="([^"]+)"`, 'i'));
+        const itemMatch = opfXml.match(new RegExp(`<item[^>]+id=["']${coverId}["'][^>]+href=["']([^"']+)["']`, 'i'))
+                       || opfXml.match(new RegExp(`<item[^>]+href=["']([^"']+)["'][^>]+id=["']${coverId}["']`, 'i'));
         if (itemMatch) imgPath = itemMatch[1];
       }
     }
+
+    // 4. Safe fallback: any image item with "cover" but NOT "backcover"
     if (!imgPath) {
-      const fallback = opfXml.match(/<item[^>]*id="[^"]*cover[^"]*"[^>]*href="([^"]+\.(jpg|jpeg|png|webp))"/i)
-        || opfXml.match(/<item[^>]*href="([^"]*cover[^"]*\.(jpg|jpeg|png|webp))"/i);
-      if (fallback) imgPath = fallback[1];
+      const itemRegex = /<item[^>]+>/gi;
+      let match;
+      while ((match = itemRegex.exec(opfXml)) !== null) {
+        const tag = match[0].toLowerCase();
+        if (tag.includes('cover') && !tag.includes('backcover')) {
+          const hrefMatch = match[0].match(/href=["']([^"']+\.(?:jpg|jpeg|png|webp))["']/i);
+          if (hrefMatch) {
+            imgPath = hrefMatch[1];
+            break;
+          }
+        }
+      }
     }
+
     if (!imgPath) return null;
     const fullPath = opfDir && opfDir !== '.' ? `${opfDir}/${imgPath}` : imgPath;
     return fullPath.replace(/\\/g, '/');
@@ -93,7 +119,10 @@ function extractCoverFromEpub(epubPath, slug) {
     const coverInternalPath = findCoverInOPF(zip);
     if (!coverInternalPath) {
       const entries = zip.getEntries();
-      const coverEntry = entries.find(e => /cover\.(jpg|jpeg|png|webp)/i.test(e.entryName));
+      const coverEntry = entries.find(e => {
+        const name = e.entryName.toLowerCase();
+        return name.includes('cover') && !name.includes('backcover') && /\.(jpg|jpeg|png|webp)$/.test(name);
+      });
       if (!coverEntry) { console.warn(`  ⚠ No cover: ${path.basename(epubPath)}`); return null; }
       const ext = path.extname(coverEntry.entryName).toLowerCase();
       const outFile = path.join(coversDir, `${slug}${ext}`);
