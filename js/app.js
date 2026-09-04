@@ -18,7 +18,7 @@ function escapeHtml(value) {
 
 function titleInitials(title) {
   const words = String(title).trim().split(/\s+/).filter(Boolean);
-  if (!words.length) return '🩺';
+  if (!words.length) return '📖';
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
   return (words[0][0] + words[1][0]).toUpperCase();
 }
@@ -31,11 +31,46 @@ async function loadJson(file) {
 
 function renderCategory() {
   const category = state.category || {};
-  const title = category.title || 'Therapedia';
+  const title = category.title || 'NIBBLES';
   document.title = `${title} — Digital Library`;
   $('#categoryTitle').textContent = title;
-  $('#categoryDescription').textContent = category.description || 'Mental wellness manuals, psychosocial dictionaries, and therapeutic guidance.';
-  $('#categoryBadge').textContent = category.badge || 'WELLNESS & THERAPY';
+  $('#categoryDescription').textContent = category.description || 'Narrative Intervention Books for Behavioural, Learning, Emotional & Social Development.';
+  $('#categoryBadge').textContent = category.badge || 'INTERVENTION';
+}
+
+/**
+ * Builds the inner page-flip layers for the hover animation.
+ * Shows 3 "page" layers that fan out on hover like flipping pages.
+ */
+function buildPageFlipLayers(coverUrl, title) {
+  const initials = escapeHtml(titleInitials(title));
+  // Page 2 and 3 show a gradient interior (like interior book pages)
+  return `
+    <div class="book-page page-3" aria-hidden="true">
+      <div class="page-lines">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </div>
+      <div class="page-icon">${initials}</div>
+    </div>
+    <div class="book-page page-2" aria-hidden="true">
+      <div class="page-lines">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span>
+      </div>
+    </div>
+    <div class="book-page page-1" aria-hidden="true">
+      <div class="page-content-preview">
+        <div class="page-story-lines">
+          <div class="ps-line long"></div>
+          <div class="ps-line medium"></div>
+          <div class="ps-line long"></div>
+          <div class="ps-line short"></div>
+          <div class="ps-line long"></div>
+          <div class="ps-line medium"></div>
+        </div>
+      </div>
+    </div>`;
 }
 
 function renderBooks() {
@@ -56,7 +91,6 @@ function renderBooks() {
   } else if (state.sortBy === 'oldest') {
     books.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
   } else {
-    // Featured default
     books.sort((a, b) => (Number(a.order) || 999999) - (Number(b.order) || 999999));
   }
 
@@ -65,7 +99,7 @@ function renderBooks() {
     : `${books.length} book${books.length === 1 ? '' : 's'} in this collection`;
 
   if (!books.length) {
-    grid.innerHTML = `<div class="empty">No books found${query ? ` for “${escapeHtml(state.query)}”` : ''}.</div>`;
+    grid.innerHTML = `<div class="empty">No books found${query ? ` for "${escapeHtml(state.query)}"` : ''}.</div>`;
     return;
   }
 
@@ -74,24 +108,50 @@ function renderBooks() {
     const file = book.file || '';
     const format = escapeHtml((book.format || 'EPUB').toUpperCase());
     const href = `reader.html?book=${encodeURIComponent(file)}`;
-    const initials = escapeHtml(titleInitials(book.title));
-    
+    const orderNum = Number(book.order) || index + 1;
+    const coverSrc = book.cover ? escapeHtml(book.cover) : '';
+
+    const coverInner = coverSrc
+      ? `<img class="cover-img" src="${coverSrc}" alt="${title} cover" loading="lazy" onerror="this.parentElement.classList.add('cover-fallback')">`
+      : '';
+
+    const pageFlip = buildPageFlipLayers(coverSrc, book.title || '');
+
     return `
-      <article class="book-card">
-        <div class="book-cover">
-          <div class="cover-top-bar">
-            <span class="cover-order">BOOK ${Number(book.order) || index + 1}</span>
-            <span class="cover-badge">${format}</span>
+      <article class="book-card" data-slug="${escapeHtml(book.slug || '')}">
+        <a class="book-cover-link" href="${escapeHtml(href)}" aria-label="Read ${title}">
+          <div class="book-3d-wrapper">
+            ${pageFlip}
+            <div class="book-cover${coverSrc ? '' : ' cover-fallback'}">
+              ${coverInner}
+              <div class="cover-overlay">
+                <div class="cover-top-bar">
+                  <span class="cover-order">BOOK ${orderNum}</span>
+                  <span class="cover-badge">${format}</span>
+                </div>
+              </div>
+              <div class="cover-hover-cta" aria-hidden="true">
+                <span class="cta-icon">📖</span>
+                <span class="cta-text">Read Now</span>
+              </div>
+              <div class="cover-fallback-inner" aria-hidden="true">
+                <div class="cover-top-bar">
+                  <span class="cover-order">BOOK ${orderNum}</span>
+                  <span class="cover-badge">${format}</span>
+                </div>
+                <div class="cover-center">
+                  <h4 class="cover-title-preview">${title}</h4>
+                  <div class="cover-symbol">${escapeHtml(titleInitials(book.title || ''))}</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="cover-center">
-            <h4 class="cover-title-preview">${title}</h4>
-            <div class="cover-symbol" aria-hidden="true">${initials}</div>
-          </div>
-        </div>
+          <div class="book-spine" aria-hidden="true"></div>
+        </a>
         <div class="book-body">
           <h3 class="book-title">${title}</h3>
           <p class="book-format">${format} Storybook</p>
-          <a class="read-btn" href="${href}">Read Book <span aria-hidden="true">→</span></a>
+          <a class="read-btn" href="${escapeHtml(href)}">Read Book <span aria-hidden="true">→</span></a>
         </div>
       </article>`;
   }).join('');

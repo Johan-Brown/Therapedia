@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-27T10:17:08.733Z",
+  "generatedAt": "2026-09-03T07:02:33.650Z",
   "books": [
     {
       "title": "Mental Wellness Dictionary of Psychosocial & Cultural Terms & Concepts Volume 6",
@@ -7,7 +7,8 @@
       "file": "books/Mental Wellness Dictionary of Psychosocial & Cultural Terms & Concepts - Volume-6.pdf",
       "format": "PDF",
       "status": "published",
-      "order": 1
+      "order": 1,
+      "cover": "covers/mental-wellness-dictionary-of-psychosocial-cultural-terms-concepts-volume-6.jpg"
     },
     {
       "title": "Parent Communication of Mental Wellness Index (MWI) Results Volume 14",
@@ -15,7 +16,8 @@
       "file": "books/Parent Communication of Mental Wellness Index (MWI) Results_Volume-14.pdf",
       "format": "PDF",
       "status": "published",
-      "order": 2
+      "order": 2,
+      "cover": "covers/parent-communication-of-mental-wellness-index-mwi-results-volume-14.jpg"
     },
     {
       "title": "SAATH Manual Students Exam Stress And Management Volume I Final",
@@ -23,7 +25,8 @@
       "file": "books/SAATH Manual - Students - Exam Stress And Management Volume-I_Final.pdf",
       "format": "PDF",
       "status": "published",
-      "order": 3
+      "order": 3,
+      "cover": "covers/saath-manual-students-exam-stress-and-management-volume-i-final.jpg"
     },
     {
       "title": "SAATH Manual Students Exam Stress And Management Volume II Final",
@@ -31,7 +34,8 @@
       "file": "books/SAATH Manual - Students - Exam Stress And Management Volume-II_Final.pdf",
       "format": "PDF",
       "status": "published",
-      "order": 4
+      "order": 4,
+      "cover": "covers/saath-manual-students-exam-stress-and-management-volume-ii-final.jpg"
     },
     {
       "title": "SAATH Mental Wellness Counsellor Conversations Vol61",
@@ -39,7 +43,8 @@
       "file": "books/SAATH Mental Wellness Counsellor Conversations Vol61.pdf",
       "format": "PDF",
       "status": "published",
-      "order": 5
+      "order": 5,
+      "cover": "covers/saath-mental-wellness-counsellor-conversations-vol61.jpg"
     }
   ]
 }

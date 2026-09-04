@@ -6,5 +6,8 @@
   "scripts": {
     "sync": "node scripts/sync-books.js",
     "watch": "node scripts/watch-books.js"
+  },
+  "devDependencies": {
+    "adm-zip": "^0.6.0"
   }
 }

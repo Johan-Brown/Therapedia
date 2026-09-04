@@ -1,21 +1,33 @@
+/* ============================================================
+   NIBBLES — Category Library  |  style.css
+   Features: Cover Image Display + Page-Flip Hover Animation
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
 :root {
-  --theme-dark: #042f2e;
-  --theme-main: #115e59;
-  --theme-accent: #14b8a6;
-  --theme-light: #ccfbf1;
-  --theme-bg: #f0fdf4;
-  --ink: #042f2e;
-  --muted: #115e59;
-  --line: #99f6e4;
-  --shadow: 0 14px 40px rgba(17, 94, 89, 0.12);
+  --theme-dark: #0f3429;
+  --theme-main: #126453;
+  --theme-accent: #19816b;
+  --theme-light: #e8f6ef;
+  --theme-bg: #f4fbf7;
+  --ink: #18312c;
+  --muted: #65736f;
+  --line: #dce9e4;
+  --shadow: 0 14px 40px rgba(16, 65, 53, 0.12);
+  --shadow-deep: 0 28px 60px rgba(16, 65, 53, 0.22);
   --radius: 24px;
+  --cover-h: 260px;
+  --page-color-1: #f9f5ee;
+  --page-color-2: #f3ede0;
+  --page-color-3: #ece4d0;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ink);
   background: var(--theme-bg);
 }
@@ -23,12 +35,13 @@ a { color: inherit; }
 .container { width: min(1160px, calc(100% - 40px)); margin-inline: auto; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
+/* ── HERO ── */
 .hero {
   position: relative; overflow: hidden; color: white;
   background:
-    radial-gradient(circle at 82% 25%, rgba(20, 184, 166, .32), transparent 28%),
-    radial-gradient(circle at 10% 100%, rgba(17, 94, 89, .22), transparent 30%),
-    linear-gradient(135deg, var(--theme-dark), var(--theme-main) 55%, var(--theme-accent));
+    radial-gradient(circle at 82% 25%, rgba(94, 196, 154, .32), transparent 28%),
+    radial-gradient(circle at 10% 100%, rgba(107, 33, 168, .22), transparent 30%),
+    linear-gradient(135deg, var(--theme-dark), var(--theme-main) 55%, #19816b);
 }
 .hero::after {
   content: ""; position: absolute; inset: auto -5% -100px -5%; height: 180px;
@@ -49,15 +62,15 @@ a { color: inherit; }
   display: grid; grid-template-columns: 1.2fr .8fr; align-items: center; gap: 40px; padding: 35px 0 95px;
 }
 .eyebrow, .section-kicker { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .16em; }
-.eyebrow { padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.12); color: #ccfbf1; }
+.eyebrow { padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.12); color: #d9f5e8; }
 .hero h1 { margin: 16px 0 8px; font-size: clamp(48px, 7vw, 82px); line-height: .95; letter-spacing: -.05em; }
 .hero-copy > p { margin: 0; }
-#categoryDescription { font-size: clamp(19px, 2.3vw, 27px); color: #f0fdf4; font-weight: 600; }
+#categoryDescription { font-size: clamp(19px, 2.3vw, 27px); color: #e8fff5; font-weight: 600; }
 .hero-note { max-width: 620px; margin-top: 18px !important; color: rgba(255,255,255,.72); line-height: 1.65; font-size: 16px; }
 .hero-art { min-height: 280px; position: relative; display: grid; place-items: center; }
 .hero-circle {
   width: 210px; height: 210px; display: grid; place-items: center; border-radius: 50%;
-  font-size: 88px; background: linear-gradient(145deg, #99f6e4, #2dd4bf);
+  font-size: 88px; background: linear-gradient(145deg, #d7f4df, #83d6a7);
   box-shadow: 0 28px 70px rgba(0,0,0,.20); transform: rotate(-5deg);
 }
 .heart { position: absolute; font-size: 36px; animation: float 4s ease-in-out infinite; }
@@ -65,8 +78,9 @@ a { color: inherit; }
 .heart-two { bottom: 14%; left: 12%; font-size: 26px; animation-delay: 1.2s; }
 @keyframes float { 50% { transform: translateY(-10px) rotate(8deg); } }
 
+/* ── SECTION TOP ── */
 .library-section { padding: 20px 0 70px; }
-.section-top { display: flex; justify-content: space-between; align-items: end; gap: 25px; margin-bottom: 28px; }
+.section-top { display: flex; justify-content: space-between; align-items: end; gap: 25px; margin-bottom: 32px; }
 .section-kicker { color: var(--theme-accent); }
 .section-top h2 { margin: 6px 0 5px; font-size: clamp(30px, 4vw, 44px); letter-spacing: -.035em; }
 .book-count { margin: 0; color: var(--muted); }
@@ -74,14 +88,14 @@ a { color: inherit; }
 .controls-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .sort-box {
   display: flex; align-items: center; gap: 8px; background: white; border: 1px solid var(--line);
-  border-radius: 16px; padding: 6px 14px; box-shadow: 0 8px 25px rgba(17,94,89,.06); font-size: 14px; font-weight: 600;
+  border-radius: 16px; padding: 6px 14px; box-shadow: 0 8px 25px rgba(16,65,53,.06); font-size: 14px; font-weight: 600;
 }
 .sort-label { color: var(--muted); }
 .sort-box select { border: 0; outline: 0; background: transparent; font: inherit; color: var(--ink); font-weight: 700; cursor: pointer; }
-
 .search-box {
   width: min(280px, 100%); display: flex; align-items: center; gap: 10px;
-  background: white; border: 1px solid var(--line); border-radius: 16px; padding: 0 15px; box-shadow: 0 8px 25px rgba(17,94,89,.06);
+  background: white; border: 1px solid var(--line); border-radius: 16px; padding: 0 15px;
+  box-shadow: 0 8px 25px rgba(16,65,53,.06);
 }
 .search-box span { color: var(--muted); font-size: 20px; }
 .search-box input { width: 100%; border: 0; outline: 0; padding: 12px 0; background: transparent; font: inherit; color: var(--ink); }
@@ -89,56 +103,291 @@ a { color: inherit; }
 .status { padding: 18px 20px; border-radius: 16px; background: var(--theme-light); color: var(--muted); margin-bottom: 20px; }
 .status.hidden { display: none; }
 
-.books-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
-.book-card {
-  overflow: hidden; display: flex; flex-direction: column; background: white;
-  border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
-  transition: transform .25s ease, box-shadow .25s ease;
-}
-.book-card:hover { transform: translateY(-5px); box-shadow: 0 22px 50px rgba(17,94,89,.18); }
+/* ══════════════════════════════════════════
+   BOOK GRID  &  3-D PAGE-FLIP CARD
+   ══════════════════════════════════════════ */
 
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.book-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: visible;         /* must be visible for 3-D overflow */
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.book-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-deep);
+}
+
+/* ─── Link wrapper that holds the 3D scene ─── */
+.book-cover-link {
+  display: block;
+  text-decoration: none;
+  position: relative;
+}
+
+/* ─── 3-D Container — perspective lives here ─── */
+.book-3d-wrapper {
+  position: relative;
+  height: var(--cover-h);
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;           /* clips cover image overflow */
+  perspective: 900px;
+  cursor: pointer;
+}
+
+/* ── Cover image (front face) ── */
 .book-cover {
-  position: relative; height: 210px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;
-  background: linear-gradient(135deg, var(--theme-dark), var(--theme-main)); color: white; text-align: left; overflow: hidden;
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--theme-dark), var(--theme-main));
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.4,0,.2,1), box-shadow .55s ease;
+  z-index: 4;
+  will-change: transform;
 }
-.book-cover::before {
-  content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 90% 10%, rgba(255,255,255,.25), transparent 40%); pointer-events: none;
+.book-cover-link:hover .book-cover {
+  transform: perspective(900px) rotateY(-28deg) translateX(6px);
+  box-shadow: 8px 0 30px rgba(0,0,0,.35);
 }
-.cover-top-bar { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity .3s ease;
+}
+
+/* Overlay on top of real cover image — shows format badge, book number */
+.cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.45) 0%, transparent 40%, rgba(0,0,0,.22) 100%);
+  padding: 14px 14px 0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  z-index: 2;
+}
+.cover-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .cover-order {
-  padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.22); backdrop-filter: blur(4px);
+  padding: 4px 10px; border-radius: 999px;
+  background: rgba(255,255,255,.22); backdrop-filter: blur(6px);
   font-size: 11px; font-weight: 800; color: white; letter-spacing: .06em;
 }
 .cover-badge {
-  padding: 4px 10px; border-radius: 999px; background: rgba(0,0,0,.25); backdrop-filter: blur(4px);
-  font-size: 11px; font-weight: 800; color: #ccfbf1; text-transform: uppercase;
-}
-.cover-center {
-  position: relative; z-index: 2; margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px;
-}
-.cover-title-preview { margin: 0; font-size: 17px; font-weight: 900; line-height: 1.25; letter-spacing: -.02em; text-shadow: 0 2px 10px rgba(0,0,0,.3); max-height: 72px; overflow: hidden; }
-.cover-symbol {
-  width: 52px; height: 52px; min-width: 52px; border-radius: 14px; background: rgba(255,255,255,.95); display: grid; place-items: center;
-  font-size: 22px; font-weight: 900; color: var(--theme-dark); box-shadow: 0 8px 20px rgba(0,0,0,.2);
+  padding: 4px 10px; border-radius: 999px;
+  background: rgba(0,0,0,.35); backdrop-filter: blur(6px);
+  font-size: 11px; font-weight: 800; color: #a7f3d0; text-transform: uppercase;
 }
 
-.book-body { padding: 20px; display: flex; flex: 1; flex-direction: column; }
-.book-title { margin: 0 0 8px; font-size: 17px; line-height: 1.35; letter-spacing: -.02em; }
-.book-format { margin: 0 0 16px; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+/* ── Hover "Read Now" CTA that appears over cover ── */
+.cover-hover-cta {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(15, 52, 41, .55);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity .35s ease;
+  z-index: 3;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.book-cover-link:hover .cover-hover-cta {
+  opacity: 1;
+}
+.cta-icon { font-size: 38px; }
+.cta-text {
+  font-size: 15px; font-weight: 800; color: white;
+  letter-spacing: .04em;
+  padding: 8px 20px; border-radius: 99px;
+  background: var(--theme-accent);
+}
+
+/* ── Fallback gradient cover (shown when no cover image) ── */
+.cover-fallback-inner {
+  display: none;
+  position: absolute;
+  inset: 0;
+  padding: 18px;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1;
+  color: white;
+}
+.book-cover.cover-fallback .cover-img { display: none; }
+.book-cover.cover-fallback .cover-overlay { display: none; }
+.book-cover.cover-fallback .cover-hover-cta { z-index: 2; }
+.book-cover.cover-fallback .cover-fallback-inner {
+  display: flex;
+}
+.cover-center {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+}
+.cover-title-preview {
+  margin: 0; font-size: 17px; font-weight: 900; line-height: 1.25;
+  letter-spacing: -.02em; text-shadow: 0 2px 10px rgba(0,0,0,.3);
+  max-height: 72px; overflow: hidden;
+}
+.cover-symbol {
+  width: 52px; height: 52px; min-width: 52px;
+  border-radius: 14px; background: rgba(255,255,255,.95);
+  display: grid; place-items: center;
+  font-size: 22px; font-weight: 900; color: var(--theme-dark);
+  box-shadow: 0 8px 20px rgba(0,0,0,.2);
+}
+
+/* ── Page layers that fan out on hover (behind front cover) ── */
+.book-page {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.4,0,.2,1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+}
+
+/* Page 1 — innermost (first page to emerge) */
+.page-1 {
+  background: var(--page-color-1);
+  z-index: 3;
+  transform: perspective(900px) rotateY(0deg);
+}
+.book-cover-link:hover .page-1 {
+  transform: perspective(900px) rotateY(-18deg) translateX(3px);
+}
+
+/* Page 2 */
+.page-2 {
+  background: var(--page-color-2);
+  z-index: 2;
+  transform: perspective(900px) rotateY(0deg);
+}
+.book-cover-link:hover .page-2 {
+  transform: perspective(900px) rotateY(-10deg) translateX(2px);
+}
+
+/* Page 3 — backmost */
+.page-3 {
+  background: var(--page-color-3);
+  z-index: 1;
+  transform: perspective(900px) rotateY(0deg);
+}
+.book-cover-link:hover .page-3 {
+  transform: perspective(900px) rotateY(-4deg) translateX(1px);
+}
+
+/* Horizontal ruling lines on interior pages */
+.page-lines {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 30px 20px 20px;
+}
+.page-lines span {
+  display: block;
+  height: 1px;
+  background: rgba(100,80,40,.14);
+  border-radius: 1px;
+}
+.page-lines span:nth-child(1) { width: 88%; }
+.page-lines span:nth-child(2) { width: 72%; }
+.page-lines span:nth-child(3) { width: 95%; }
+.page-lines span:nth-child(4) { width: 60%; }
+.page-lines span:nth-child(5) { width: 83%; }
+.page-lines span:nth-child(6) { width: 50%; }
+.page-lines span:nth-child(7) { width: 90%; }
+.page-lines span:nth-child(8) { width: 40%; }
+
+.page-icon {
+  font-size: 48px;
+  font-weight: 900;
+  color: rgba(15,52,41,.12);
+  text-align: center;
+  position: absolute;
+  bottom: 20px;
+  left: 0; right: 0;
+  letter-spacing: -.04em;
+}
+
+/* Page 1 content — story-line preview */
+.page-content-preview {
+  padding: 30px 20px;
+}
+.page-story-lines { display: flex; flex-direction: column; gap: 10px; }
+.ps-line {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(15,52,41,.10);
+}
+.ps-line.long { width: 92%; }
+.ps-line.medium { width: 74%; }
+.ps-line.short { width: 55%; }
+
+/* ── Book Spine (left edge shadow illusion) ── */
+.book-spine {
+  display: none; /* optional — can be enabled for extra realism */
+}
+
+/* ── Card Body ── */
+.book-body { padding: 18px 20px 20px; display: flex; flex: 1; flex-direction: column; }
+.book-title { margin: 0 0 6px; font-size: 16px; line-height: 1.35; letter-spacing: -.02em; font-weight: 800; }
+.book-format { margin: 0 0 14px; color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 
 .read-btn {
   display: inline-flex; justify-content: center; align-items: center; gap: 8px; margin-top: auto;
-  padding: 12px 18px; border-radius: 14px; background: var(--theme-main); color: white;
-  text-decoration: none; font-weight: 700; font-size: 14px; transition: background .2s ease;
+  padding: 11px 18px; border-radius: 14px; background: var(--theme-main); color: white;
+  text-decoration: none; font-weight: 700; font-size: 13px;
+  transition: background .2s ease, transform .15s ease;
 }
-.read-btn:hover { background: var(--theme-dark); }
+.read-btn:hover {
+  background: var(--theme-dark);
+  transform: translateX(2px);
+}
 
-.empty { grid-column: 1 / -1; padding: 50px 20px; text-align: center; background: white; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--muted); }
+.empty {
+  grid-column: 1 / -1; padding: 50px 20px; text-align: center;
+  background: white; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--muted);
+}
+
+/* ── FOOTER ── */
 .footer { border-top: 1px solid var(--line); background: white; color: var(--muted); margin-top: 80px; }
 .footer-inner { min-height: 80px; display: flex; justify-content: space-between; align-items: center; gap: 20px; font-size: 14px; }
 
-@media(max-width:1080px) { .books-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media(max-width:760px) {
+/* ── RESPONSIVE ── */
+@media(max-width: 1080px) { .books-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media(max-width: 760px) {
   .hero-content { grid-template-columns: 1fr; min-height: 0; padding-top: 20px; }
   .hero-art { min-height: 200px; }
   .hero-circle { width: 160px; height: 160px; font-size: 64px; }
@@ -147,4 +396,15 @@ a { color: inherit; }
   .search-box { width: 100%; }
   .books-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media(max-width:480px) { .books-grid { grid-template-columns: 1fr; } }
+@media(max-width: 480px) { .books-grid { grid-template-columns: 1fr; } }
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .book-cover,
+  .book-page,
+  .cover-hover-cta,
+  .heart {
+    transition: none !important;
+    animation: none !important;
+  }
+}
